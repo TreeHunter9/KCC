@@ -13,6 +13,7 @@ public class FPInputs : MonoBehaviour
     private InputAction _lookAction;
     private InputAction _jumpAction;
     private InputAction _sprintAction;
+    //test
 
     private void Awake()
     {
