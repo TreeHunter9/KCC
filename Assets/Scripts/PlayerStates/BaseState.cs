@@ -1,3 +1,5 @@
+using UnityEngine;
+
 namespace PlayerStates
 {
     public abstract class BaseState
@@ -22,6 +24,7 @@ namespace PlayerStates
         {
             ExitState();
             context.currentState = newState;
+            //Debug.Log($"Enter {newState.GetType().Name}");
             context.currentState.EnterState();
         }
 

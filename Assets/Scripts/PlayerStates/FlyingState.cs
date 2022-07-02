@@ -6,6 +6,9 @@ namespace PlayerStates
     {
         public BaseState FallingState { get; private set; }
 
+        private RaycastHit _hitInfo;
+        private bool _isTouchGroundThisFrame;
+
         public FlyingState(FPController context) : base(context)
         {
             FallingState = new FallingState(context);
@@ -13,13 +16,21 @@ namespace PlayerStates
 
         public override void EnterState()
         {
-            Debug.Log($"Enter {this.GetType().Name}");
             SwitchSubState(FallingState);
         }
 
         protected override void UpdateState()
         {
             context.currentVelocity.y += context.gravity * Time.deltaTime;
+            if (_isTouchGroundThisFrame == true)
+            {
+                float angle = Vector3.Angle(Vector3.up, _hitInfo.normal);
+                if (angle > context.CharacterControllerComponent.slopeLimit)
+                {
+                    Vector3 project = Vector3.ProjectOnPlane(context.currentVelocity, _hitInfo.normal);
+                    context.currentVelocity = project;
+                }
+            }
         }
 
         protected override void ExitState()
@@ -27,9 +38,11 @@ namespace PlayerStates
 
         protected override bool CheckSwitchState()
         {
-            if (context.IsGrounded(context.transform, context.CharacterControllerComponent, out var hit) == true)
+            _isTouchGroundThisFrame =
+                context.IsGrounded(context.transform, context.CharacterControllerComponent, out _hitInfo);
+            if (_isTouchGroundThisFrame == true)
             {
-                float angle = Vector3.Angle(Vector3.up, hit.normal);
+                float angle = Vector3.Angle(Vector3.up, _hitInfo.normal);
                 if (angle > context.CharacterControllerComponent.slopeLimit)
                     return false;
                 SwitchState(context.GroundedState);

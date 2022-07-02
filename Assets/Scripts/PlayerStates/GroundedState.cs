@@ -19,28 +19,24 @@ namespace PlayerStates
 
         public override void EnterState()
         {
-            Debug.Log($"Enter {this.GetType().Name}");
             SwitchSubState(WalkState);
         }
 
         protected override void UpdateState()
         {
-            if (_isTouchGroundThisFrame == true)
+            Vector3 project =
+                Vector3.ProjectOnPlane(new Vector3(context.currentVelocity.x, 0, context.currentVelocity.z),
+                    _hitInfo.normal);
+            float xDiff = 0f;
+            float zDiff = 0f;
+            if (Vector3.Angle(Vector3.up, _hitInfo.normal) <= context.CharacterControllerComponent.slopeLimit)
             {
-                Vector3 project =
-                        Vector3.ProjectOnPlane(new Vector3(context.currentVelocity.x, 0, context.currentVelocity.z),
-                            _hitInfo.normal);
-                float xDiff = context.currentVelocity.x / (project.x == 0 ? 1 : project.x);
-                float zDiff = context.currentVelocity.z / (project.z == 0 ? 1 : project.z);
-                //Debug.Log($"{xDiff}, {zDiff}");
-                //Debug.Log(project);
-                context.currentVelocity.y = project.y * Mathf.Max(xDiff, zDiff, 1f) - 1f;
+                xDiff = context.currentVelocity.x / (project.x == 0 ? 1 : project.x);
+                zDiff = context.currentVelocity.z / (project.z == 0 ? 1 : project.z);
             }
-            else
-            {
-                Debug.Log(false);
-            }
-            //context.currentVelocity.y = -1f;
+            Debug.Log(project.y);
+            context.currentVelocity.y = project.y * Mathf.Max(xDiff, zDiff, 1f) - 1f;
+
             ChangeJumpPenalty();
         }
 
